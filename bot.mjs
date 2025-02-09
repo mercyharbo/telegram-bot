@@ -37,34 +37,6 @@ bot.on('new_chat_members', (msg) => {
   })
 })
 
-// bot.on('message', async (msg) => {
-//   const chatId = msg.chat.id
-//   const userId = msg.from.id
-//   const username = msg.from.username || msg.from.first_name
-//   const text = msg.text || ''
-
-//   const isUserAdmin = await isAdmin(chatId, userId)
-//   if (isUserAdmin) return
-
-//   if (
-//     linkRegex.test(text) ||
-//     inviteRegex.test(text) ||
-//     phoneRegex.test(text) ||
-//     scamKeywords.test(text)
-//   ) {
-//     try {
-//       await bot.deleteMessage(chatId, msg.message_id)
-//       await bot.sendMessage(
-//         chatId,
-//         `⚠️ <a href="tg://user?id=${userId}">${username}</a>, your message was removed as it violated group rules.`,
-//         { parse_mode: 'HTML' }
-//       )
-//     } catch (error) {
-//       console.error('Error handling message:', error)
-//     }
-//   }
-// })
-
 bot.on('message', async (msg) => {
   try {
     const chatId = msg.chat.id
@@ -72,7 +44,7 @@ bot.on('message', async (msg) => {
     const username = msg.from.username || msg.from.first_name
     const text = msg.text || ''
 
-    console.log(`[MESSAGE] From: ${username} (${userId}) - Text: ${text}`)
+    // console.log(`[MESSAGE] From: ${username} (${userId}) - Text: ${text}`)
 
     // Ensure message is text before processing
     if (!text) return
@@ -80,13 +52,13 @@ bot.on('message', async (msg) => {
     // Check if user is an admin
     const isUserAdmin = await isAdmin(chatId, userId)
     if (isUserAdmin) {
-      console.log(`[ADMIN] User ${username} is an admin, skipping moderation.`)
+      // console.log(`[ADMIN] User ${username} is an admin, skipping moderation.`)
       return
     }
 
     // Validate regex patterns exist
     if (!linkRegex || !inviteRegex || !phoneRegex || !scamKeywords) {
-      console.error('[ERROR] One or more regex patterns are missing.')
+      // console.error('[ERROR] One or more regex patterns are missing.')
       return
     }
 
@@ -104,7 +76,7 @@ bot.on('message', async (msg) => {
       // Attempt to delete message
       try {
         await bot.deleteMessage(chatId, msg.message_id)
-        console.log(`[DELETED] Message from ${username} removed.`)
+        // console.log(`[DELETED] Message from ${username} removed.`)
       } catch (error) {
         console.error('[ERROR] Failed to delete message:', error)
       }
@@ -116,7 +88,7 @@ bot.on('message', async (msg) => {
           `⚠️ <a href="tg://user?id=${userId}">${username}</a>, your message was removed as it violated group rules.`,
           { parse_mode: 'HTML' }
         )
-        console.log(`[NOTIFIED] ${username} was notified.`)
+        // console.log(`[NOTIFIED] ${username} was notified.`)
       } catch (error) {
         console.error('[ERROR] Failed to send warning message:', error)
       }
@@ -147,7 +119,7 @@ const postMemeToChannel = async () => {
       await bot.sendPhoto(chatId, memeUrl, {
         caption: '🎉 Enjoy this random programming meme!',
       })
-      console.log('✅ Meme posted to the channel!')
+      // console.log('✅ Meme posted to the channel!')
     } else {
       console.error('No meme URL found.')
     }
