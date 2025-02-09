@@ -30,6 +30,7 @@ A versatile Telegram bot that combines fun and security. This bot posts random p
 
    ```bash
    export BOT_TOKEN=your_telegram_bot_token
+   export RAPID_API_KEY=your key here for the endpoint used
    ```
 
 4. Run the bot:
