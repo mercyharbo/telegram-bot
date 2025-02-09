@@ -1,4 +1,3 @@
-// bot.mjs
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -38,31 +37,92 @@ bot.on('new_chat_members', (msg) => {
   })
 })
 
+// bot.on('message', async (msg) => {
+//   const chatId = msg.chat.id
+//   const userId = msg.from.id
+//   const username = msg.from.username || msg.from.first_name
+//   const text = msg.text || ''
+
+//   const isUserAdmin = await isAdmin(chatId, userId)
+//   if (isUserAdmin) return
+
+//   if (
+//     linkRegex.test(text) ||
+//     inviteRegex.test(text) ||
+//     phoneRegex.test(text) ||
+//     scamKeywords.test(text)
+//   ) {
+//     try {
+//       await bot.deleteMessage(chatId, msg.message_id)
+//       await bot.sendMessage(
+//         chatId,
+//         `⚠️ <a href="tg://user?id=${userId}">${username}</a>, your message was removed as it violated group rules.`,
+//         { parse_mode: 'HTML' }
+//       )
+//     } catch (error) {
+//       console.error('Error handling message:', error)
+//     }
+//   }
+// })
+
 bot.on('message', async (msg) => {
-  const chatId = msg.chat.id
-  const userId = msg.from.id
-  const username = msg.from.username || msg.from.first_name
-  const text = msg.text || ''
+  try {
+    const chatId = msg.chat.id
+    const userId = msg.from.id
+    const username = msg.from.username || msg.from.first_name
+    const text = msg.text || ''
 
-  const isUserAdmin = await isAdmin(chatId, userId)
-  if (isUserAdmin) return
+    console.log(`[MESSAGE] From: ${username} (${userId}) - Text: ${text}`)
 
-  if (
-    linkRegex.test(text) ||
-    inviteRegex.test(text) ||
-    phoneRegex.test(text) ||
-    scamKeywords.test(text)
-  ) {
-    try {
-      await bot.deleteMessage(chatId, msg.message_id)
-      await bot.sendMessage(
-        chatId,
-        `⚠️ <a href="tg://user?id=${userId}">${username}</a>, your message was removed as it violated group rules.`,
-        { parse_mode: 'HTML' }
-      )
-    } catch (error) {
-      console.error('Error handling message:', error)
+    // Ensure message is text before processing
+    if (!text) return
+
+    // Check if user is an admin
+    const isUserAdmin = await isAdmin(chatId, userId)
+    if (isUserAdmin) {
+      console.log(`[ADMIN] User ${username} is an admin, skipping moderation.`)
+      return
     }
+
+    // Validate regex patterns exist
+    if (!linkRegex || !inviteRegex || !phoneRegex || !scamKeywords) {
+      console.error('[ERROR] One or more regex patterns are missing.')
+      return
+    }
+
+    // Check if message violates rules
+    if (
+      linkRegex.test(text) ||
+      inviteRegex.test(text) ||
+      phoneRegex.test(text) ||
+      scamKeywords.test(text)
+    ) {
+      console.log(
+        `[VIOLATION] Message from ${username} contains restricted content.`
+      )
+
+      // Attempt to delete message
+      try {
+        await bot.deleteMessage(chatId, msg.message_id)
+        console.log(`[DELETED] Message from ${username} removed.`)
+      } catch (error) {
+        console.error('[ERROR] Failed to delete message:', error)
+      }
+
+      // Notify user
+      try {
+        await bot.sendMessage(
+          chatId,
+          `⚠️ <a href="tg://user?id=${userId}">${username}</a>, your message was removed as it violated group rules.`,
+          { parse_mode: 'HTML' }
+        )
+        console.log(`[NOTIFIED] ${username} was notified.`)
+      } catch (error) {
+        console.error('[ERROR] Failed to send warning message:', error)
+      }
+    }
+  } catch (error) {
+    console.error('[ERROR] Unexpected error in message handler:', error)
   }
 })
 
