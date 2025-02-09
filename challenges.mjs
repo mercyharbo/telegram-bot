@@ -37,7 +37,14 @@ const fetchChallenge = async () => {
 // Function to post challenge to Telegram
 const postChallenge = async () => {
   const challenge = await fetchChallenge()
-  if (!challenge) return
+  if (
+    !challenge ||
+    !Array.isArray(challenge.testCases) ||
+    challenge.testCases.length === 0
+  ) {
+    console.error('No test cases available')
+    return
+  }
 
   const message =
     `🤖 *Programming Challenge* 🤖\n\n` +
@@ -53,14 +60,15 @@ const postChallenge = async () => {
   })
 
   // Schedule the solution posting after 2 hours
-  setTimeout(() => postSolution(challenge), 2 * 60 * 60 * 1000) // 2 hours in milliseconds
+  // setTimeout(() => postSolution(challenge), 2 * 60 * 60 * 1000) // 2 hours in milliseconds
+  setTimeout(() => postSolution(challenge), 5 * 60 * 1000) // 5 minutes in milliseconds
 }
 
 // Function to post the solution
 const postSolution = async (challenge) => {
-  const solutionJS =
-    challenge.solution.find((sol) => sol.javascript)?.javascript ||
-    'Solution not available'
+  const solutionJS = Array.isArray(challenge.solution)
+    ? challenge.solution.find((sol) => sol.javascript)?.javascript
+    : challenge.solution?.javascript || 'Solution not available'
 
   const message =
     `✅ *Solution for:* ${challenge.Challenge}\n\n` +
@@ -80,7 +88,7 @@ export const scheduleChallengePosts = () => {
   postChallenge()
 
   //   Optional: Schedule every 2 hours later
-  cron.schedule('0 */2 * * *', () => {
+  cron.schedule('*/5 * * * *', () => {
     console.log('Running scheduled challenge post...')
     postChallenge()
   })
