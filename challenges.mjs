@@ -12,7 +12,7 @@ const TELEGRAM_CHANNEL_USERNAME = '@codewithmercy1'
 const bot = new TelegramBot(token, { polling: false })
 
 const API_URL =
-  'https://programming-challenges.p.rapidapi.com/api/ziza/programming-challenges/get/single/1'
+  'https://programming-challenges.p.rapidapi.com/api/ziza/programming-challenges/get/single/random'
 const API_HEADERS = {
   'x-rapidapi-key': rapid_api_key,
   'x-rapidapi-host': 'programming-challenges.p.rapidapi.com',
